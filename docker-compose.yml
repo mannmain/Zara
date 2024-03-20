@@ -1,0 +1,22 @@
+version: "3.8"
+
+services:
+    main:
+        command: [ "/project/docker/main.sh" ]
+        build:
+          context: .
+          dockerfile: Dockerfile
+        container_name: "parser"
+    db:
+      container_name: "mongo_db"
+      image: mongo
+      restart: on-failure
+      ports:
+        - "27017:27017"
+      volumes:
+        - /var/lib/mongodb/:/data/db
+      networks:
+        - custom
+networks:
+  custom:
+    driver: bridge
