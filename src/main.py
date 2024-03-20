@@ -52,10 +52,10 @@ def start():
 
 
 if __name__ == '__main__':
-    # import schedule
-    # schedule.every().day.at(TIME_TO_START).do(start)
-    # # schedule.every(5).seconds.do(start)
-    # while True:
-    #     schedule.run_pending()
-    #     time.sleep(60)  # wait one m  inute
-    asyncio.run(main())
+    import schedule
+    schedule.every().day.at(TIME_TO_START).do(start)
+    # schedule.every(5).seconds.do(start)
+    while True:
+        schedule.run_pending()
+        time.sleep(60)  # wait one m  inute
+    # asyncio.run(main())
