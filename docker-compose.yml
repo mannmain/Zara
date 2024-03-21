@@ -7,6 +7,10 @@ services:
           context: .
           dockerfile: Dockerfile
         container_name: "parser"
+        environment:
+          - MONGODB_URL=mongodb://mongo_db
+        networks:
+          - custom
     db:
       container_name: "mongo_db"
       image: mongo
