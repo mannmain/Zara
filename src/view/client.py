@@ -10,7 +10,7 @@ from view.interfaces import Logger
 
 class Client(Logger):
     def __init__(
-            self, county: str, lang: str, proxy: None | str = None,
+            self, county: str, lang: str, proxy: str = None,
     ):
         Logger.__init__(self)
         self.proxy_init = proxy
