@@ -53,6 +53,7 @@ def start():
 
 if __name__ == '__main__':
     import schedule
+    asyncio.get_event_loop().run_until_complete(main())
     schedule.every().day.at(TIME_TO_START).do(start)
     # schedule.every(5).seconds.do(start)
     while True:
