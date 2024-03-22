@@ -231,6 +231,8 @@ class ParserItems(Logger):
         len_url_list = await urls_collection.count_documents({})
         step = 1
         finish_count = 0
+        if self.client.lang_path == 'es/en':
+            finish_count = 7006
         # async for i in urls_collection.find():
         #     finish_count += step
         #     await self.get_data_item(i['_id'], i['url_full'])
@@ -245,19 +247,19 @@ class ParserItems(Logger):
 
 
 async def starter_parse():
-    for idx, country_lang in enumerate(PARSE_MAIN_LANGS):
-        client = Client(country_lang[0], country_lang[1], proxy=PROXY)
-        worker = ParserUrls(client)
-        await worker.start_get_urls()
-        await client.session.close()
-        if idx == len(PARSE_MAIN_LANGS) - 1:
-            client.logger_msg(client.lang_path, msg=f'Urls success parsed', type_msg='success')
-    for idx, country_lang in enumerate(PARSE_PATH_LANG):
+    # for idx, country_lang in enumerate(PARSE_MAIN_LANGS):
+    #     client = Client(country_lang[0], country_lang[1], proxy=PROXY)
+    #     worker = ParserUrls(client)
+    #     await worker.start_get_urls()
+    #     await client.session.close()
+    #     if idx == len(PARSE_MAIN_LANGS) - 1:
+    #         client.logger_msg(client.lang_path, msg=f'Urls success parsed', type_msg='success')
+    for idx, country_lang in enumerate([['es', 'en'], ['tr', 'en']]):
         client = Client(country_lang[0], country_lang[1], proxy=PROXY)
         worker = ParserItems(client)
         await worker.start_parse_items()
         await client.session.close()
-        if idx == len(PARSE_PATH_LANG) - 1:
+        if idx == len([['es', 'en'], ['tr', 'en']]) - 1:
             client.logger_msg(client.lang_path, msg=f'Urls success parsed', type_msg='success')
 
 
