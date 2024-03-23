@@ -171,7 +171,8 @@ class ParserItems(Logger):
                             self.logger_msg(self.client.lang_path, msg=f'{name_func} | Ban ip | {url_to_req}', type_msg='error')
                             await asyncio.sleep(60)
                             key_ban = True
-                            continue
+                            # return None  # поставил возврат, потому что не должно впринципе банить, а сылки, которые уже не существуют отдают такой же текст, как и когда забанили
+                            continue  # до return был continue
                         if bm_verify:
                             soup = BeautifulSoup(response_text, 'lxml')
                             refresh_link = soup.find('meta', attrs={'http-equiv': "refresh"})
@@ -217,6 +218,8 @@ class ParserItems(Logger):
         if 'ak_bmsc' in cookies_dict.keys():
             cookie = f'ak_bmsc={str(cookies_dict["ak_bmsc"]).split("ak_bmsc=")[-1]}'
         response_text = await self.make_request(name_func=name_func, method='GET', url=url, resp_type='text', bm_verify=True, cookie=cookie)
+        if not response_text:
+            return None
         soup = BeautifulSoup(response_text, 'lxml')
         script_text = soup.find('body').find('script', attrs={'data-compress': "true"}).text
         info_about_product = json.loads(script_text[script_text.find('window.zara.viewPayload = ') + len('window.zara.viewPayload = '):-1])
@@ -245,13 +248,13 @@ class ParserItems(Logger):
 
 
 async def starter_parse():
-    for idx, country_lang in enumerate(PARSE_MAIN_LANGS):
-        client = Client(country_lang[0], country_lang[1], proxy=PROXY)
-        worker = ParserUrls(client)
-        await worker.start_get_urls()
-        await client.session.close()
-        if idx == len(PARSE_MAIN_LANGS) - 1:
-            client.logger_msg(client.lang_path, msg=f'Urls success parsed', type_msg='success')
+    # for idx, country_lang in enumerate(PARSE_MAIN_LANGS):
+    #     client = Client(country_lang[0], country_lang[1], proxy=PROXY)
+    #     worker = ParserUrls(client)
+    #     await worker.start_get_urls()
+    #     await client.session.close()
+    #     if idx == len(PARSE_MAIN_LANGS) - 1:
+    #         client.logger_msg(client.lang_path, msg=f'Urls success parsed', type_msg='success')
     for idx, country_lang in enumerate(PARSE_PATH_LANG):
         client = Client(country_lang[0], country_lang[1], proxy=PROXY)
         worker = ParserItems(client)
