@@ -159,8 +159,8 @@ class ParserItems(Logger):
         while True:
             try:
                 # async with self.client.session.request(method=method, url=url_to_req, headers=headers) as response:
-                async with ClientSession(headers=headers, connector=ProxyConnector.from_url(f'http://{self.client.proxy_init}', ssl=ssl.create_default_context(), verify_ssl=True)) as session:
-                # async with ClientSession(headers=headers) as session:
+                # async with ClientSession(headers=headers, connector=ProxyConnector.from_url(f'http://{self.client.proxy_init}', ssl=ssl.create_default_context(), verify_ssl=True)) as session:
+                async with ClientSession(headers=headers) as session:
                     async with session.request(headers=headers, method=method, url=url_to_req) as response:
                         response_text = await response.text()
                         # self.logger_msg(self.client.lang_path, msg=f'{name_func} | all nice', type_msg='info')
@@ -234,6 +234,8 @@ class ParserItems(Logger):
         len_url_list = await urls_collection.count_documents({})
         step = 1
         finish_count = 0
+        if self.client.lang_path == 'kz/ru':
+            finish_count = 7407
         # async for i in urls_collection.find():
         #     finish_count += step
         #     await self.get_data_item(i['_id'], i['url_full'])
@@ -255,7 +257,7 @@ async def starter_parse():
     #     await client.session.close()
     #     if idx == len(PARSE_MAIN_LANGS) - 1:
     #         client.logger_msg(client.lang_path, msg=f'Urls success parsed', type_msg='success')
-    for idx, country_lang in enumerate(PARSE_PATH_LANG):
+    for idx, country_lang in enumerate([['kz', 'ru'], ['es', 'en'], ['tr', 'en']]):
         client = Client(country_lang[0], country_lang[1], proxy=PROXY)
         worker = ParserItems(client)
         await worker.start_parse_items()
