@@ -32,7 +32,7 @@ async def construct_and_upload_func(ftp_host, ftp_user, ftp_password, collection
 async def main():
     start_and_send_msg()
     try:
-        # await client_async.drop_database('Zara')
+        await client_async.drop_database('Zara')
         await starter_parse()
         await construct_and_upload_func(
             FTP_HOST_TR, FTP_USER_TR, FTP_PASSWORD_TR, db.get_collection('items_tr_en'), 'TRY', PARSE_MAIN_LANGS[1]
@@ -54,6 +54,7 @@ def start():
 if __name__ == '__main__':
     import schedule
     asyncio.get_event_loop().run_until_complete(main())
+
     schedule.every().day.at(TIME_TO_START).do(start)
     # schedule.every(5).seconds.do(start)
     while True:
