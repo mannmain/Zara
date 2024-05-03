@@ -15,6 +15,8 @@ def format_to_ftp_category(category):
         categories_add_have_product = []
         if category:
             for i in category:
+                if not i['name']:
+                    continue
                 i["parentId"] = parent_id
                 categories_add_have_product = [i] + categories_add_have_product
                 parent_id = i['id']
@@ -29,6 +31,8 @@ def get_dict_tree_category(category):
         try:
             tree_category_list = []
             for j in category:
+                if not j['name']:
+                    continue
                 tree_category_list.append(j['name'])
             tree_category_str = ' -> '.join(tree_category_list)
             return {tree_category_str: format_to_ftp_category(category)}
@@ -177,7 +181,10 @@ async def construct_files(collection: AsyncIOMotorCollection, currency: str, mai
                     if variation['id'] in new_lang_data_dict[key_lang].keys():
                         var_name_trans = new_lang_data_dict[key_lang][variation['id']]['name']
                         var_desc_trans = new_lang_data_dict[key_lang][variation['id']]['description']
-                        attr_value_list = [[var_name, var_name_trans], [description, var_desc_trans]]
+                        if var_name:
+                            attr_value_list = [[var_name, var_name_trans], [description, var_desc_trans]]
+                        else:
+                            attr_value_list = [[description, var_desc_trans]]
                         translations = add_to_trans(attr_value_list, translations, key_lang, new_lang_data_dict)
 
                 images = []
@@ -204,13 +211,14 @@ async def construct_files(collection: AsyncIOMotorCollection, currency: str, mai
                     quantity = None
                     if size['availability'] != 'in_stock' and size['availability'] != 'low_on_stock':
                         quantity = 0
+                    params = {}
+                    if var_name:
+                        params['Colour'] = var_name
+                    if size_name:
+                        params['Size'] = size_name
                     variation_one = {
                         "name": f"{name_product}",
                         "images": images,
-                        "params": {
-                            "Colour": variation['name'],
-                            "Size": size_name,
-                        },
                         "price": float(price / Decimal('100')),
                         "currency": currency,
                         "quantity": quantity,
@@ -219,6 +227,8 @@ async def construct_files(collection: AsyncIOMotorCollection, currency: str, mai
                     }
                     if properties:
                         variation_one['properties'] = properties
+                    if params:
+                        variation_one['params'] = params
                     variations.append(variation_one)
             if not variations:
                 continue

@@ -8,9 +8,10 @@ from aiohttp import ClientSession
 from aiohttp_socks import ProxyConnector
 from bs4 import BeautifulSoup
 
-from config.config import PARSE_MAIN_LANGS, PARSE_PATH_LANG, PROXY
+from config.config import PARSE_MAIN_LANGS, PARSE_PATH_LANG, PROXY, PROXY_LIST, TG_NAME_PARSE
 from config.helper import split_list
 from mongodb.db import *
+from tg.notification import send_msg
 from view.client import Client
 from view.interfaces import *
 
@@ -78,6 +79,7 @@ class ParserUrls(Logger, RequestClient):
                         return
             except Exception as ex:
                 self.logger_msg(self.client.lang_path, msg=f'{name_func} | Запрос не прошел | {ex}', type_msg='error')
+                await asyncio.sleep(300)
 
     async def parse_url_category(self, category_list):
         products = await self.request_url_category(category_list)
@@ -159,8 +161,8 @@ class ParserItems(Logger):
         while True:
             try:
                 # async with self.client.session.request(method=method, url=url_to_req, headers=headers) as response:
-                # async with ClientSession(headers=headers, connector=ProxyConnector.from_url(f'http://{self.client.proxy_init}', ssl=ssl.create_default_context(), verify_ssl=True)) as session:
-                async with ClientSession(headers=headers) as session:
+                async with ClientSession(headers=headers, connector=ProxyConnector.from_url(f'http://{self.client.proxy_init}', ssl=ssl.create_default_context(), verify_ssl=True)) as session:
+                # async with ClientSession(headers=headers) as session:
                     async with session.request(headers=headers, method=method, url=url_to_req) as response:
                         response_text = await response.text()
                         # self.logger_msg(self.client.lang_path, msg=f'{name_func} | all nice', type_msg='info')
@@ -170,6 +172,10 @@ class ParserItems(Logger):
                             headers = _headers.copy()
                             self.logger_msg(self.client.lang_path, msg=f'{name_func} | Ban ip | {url_to_req}', type_msg='error')
                             await asyncio.sleep(60)
+                            # last_proxy = self.client.proxy_init
+                            # self.client.proxy_idx = (self.client.proxy_idx + 1) % len(self.client.proxy_list)
+                            # self.client.proxy_init = self.client.proxy_list[self.client.proxy_idx]
+                            # self.logger_msg(self.client.lang_path, msg=f'{name_func} | Change proxy | before: {last_proxy} after: {self.client.proxy_init}', type_msg='success')
                             key_ban = True
                             # return None  # поставил возврат, потому что не должно впринципе банить, а сылки, которые уже не существуют отдают такой же текст, как и когда забанили
                             continue  # до return был continue
@@ -193,6 +199,7 @@ class ParserItems(Logger):
                                 return None
             except Exception as ex:
                 self.logger_msg(self.client.lang_path, msg=f'{name_func} | Запрос не прошел | {ex}', type_msg='error')
+                await asyncio.sleep(10)
 
     async def get_extra_detail_from_product(self, product_id: str):
         name_func = self.get_extra_detail_from_product.__name__
@@ -213,29 +220,46 @@ class ParserItems(Logger):
         name_func = self.get_data_item.__name__
         url = f'{self.base_url}{self.client.lang_path}/{url_full}'
         # url = f'https://www.zara.com/tr/en/stoneware-dinner-plate-p42448200.html?v1=312377191&v2=2357912'
-        cookies_dict = self.client.session.cookie_jar.filter_cookies(self.base_url)
-        cookie = ''
-        if 'ak_bmsc' in cookies_dict.keys():
-            cookie = f'ak_bmsc={str(cookies_dict["ak_bmsc"]).split("ak_bmsc=")[-1]}'
-        response_text = await self.make_request(name_func=name_func, method='GET', url=url, resp_type='text', bm_verify=True, cookie=cookie)
-        if not response_text:
-            return None
-        soup = BeautifulSoup(response_text, 'lxml')
-        script_text = soup.find('body').find('script', attrs={'data-compress': "true"}).text
-        info_about_product = json.loads(script_text[script_text.find('window.zara.viewPayload = ') + len('window.zara.viewPayload = '):-1])
-        if info_about_product and 'product' in info_about_product.keys():
-            name, new_info_about_product = await self.request_extra_and_parse_info(info_about_product)
-            if new_info_about_product:
-                await insert_to_db([{'_id': url_id, 'name': name, 'data': new_info_about_product}], self.client.collection_items)
+        while True:
+            try:
+                cookies_dict = self.client.session.cookie_jar.filter_cookies(self.base_url)
+                cookie = ''
+                if 'ak_bmsc' in cookies_dict.keys():
+                    cookie = f'ak_bmsc={str(cookies_dict["ak_bmsc"]).split("ak_bmsc=")[-1]}'
+                response_text = await self.make_request(name_func=name_func, method='GET', url=url, resp_type='text', bm_verify=True, cookie=cookie)
+                if not response_text:
+                    return None
+                soup = BeautifulSoup(response_text, 'lxml')
+                script = soup.find('body').find('script', attrs={'data-compress': "true"})
+                if not script:
+                    return
+                script_text = script.text
+                info_about_product = json.loads(script_text[script_text.find('window.zara.viewPayload = ') + len('window.zara.viewPayload = '):-1])
+                if info_about_product and 'product' in info_about_product.keys():
+                    name, new_info_about_product = await self.request_extra_and_parse_info(info_about_product)
+                    if new_info_about_product:
+                        await insert_to_db([{'_id': url_id, 'name': name, 'data': new_info_about_product}], self.client.collection_items)
+                return
+            except Exception as ex:
+                print(f"error: {ex}")
+                msg = f'{TG_NAME_PARSE}\n{datetime.now().strftime("%m.%d %H:%M")}\n[ОШИБКА В get_data_item]\nex: {ex}'
+                send_msg(msg)
+                await asyncio.sleep(300)
 
     async def start_parse_items(self):
         # await ParserUrls(self.client).request_url_category([{"name": "WOMAN", "id": "853236"}, {"name": "/// NEW", "id": "2352540"}])
         # await self.get_data_item('-p03253325.html', 'ribbed-vest-top-p03253325.html?v1=347810709')
         len_url_list = await urls_collection.count_documents({})
-        step = 1
+        step = 2
         finish_count = 0
-        if self.client.lang_path == 'kz/ru':
-            finish_count = 7407
+        #if self.client.lang_path == 'es/es':
+        #    finish_count = 10947
+        #if self.client.lang_path == 'kz/ru':
+        #    finish_count = 11443
+        #if self.client.lang_path == 'es/en':
+        #    finish_count = 12215
+        #if self.client.lang_path == 'tr/en':
+        #     finish_count = 12216
         # async for i in urls_collection.find():
         #     finish_count += step
         #     await self.get_data_item(i['_id'], i['url_full'])
@@ -250,20 +274,27 @@ class ParserItems(Logger):
 
 
 async def starter_parse():
-    # for idx, country_lang in enumerate(PARSE_MAIN_LANGS):
-    #     client = Client(country_lang[0], country_lang[1], proxy=PROXY)
-    #     worker = ParserUrls(client)
-    #     await worker.start_get_urls()
-    #     await client.session.close()
-    #     if idx == len(PARSE_MAIN_LANGS) - 1:
-    #         client.logger_msg(client.lang_path, msg=f'Urls success parsed', type_msg='success')
-    for idx, country_lang in enumerate([['kz', 'ru'], ['es', 'en'], ['tr', 'en']]):
-        client = Client(country_lang[0], country_lang[1], proxy=PROXY)
-        worker = ParserItems(client)
-        await worker.start_parse_items()
+    for idx, country_lang in enumerate(PARSE_MAIN_LANGS):
+        client = Client(country_lang[0], country_lang[1], proxy_list=[PROXY])
+        worker = ParserUrls(client)
+        await worker.start_get_urls()
         await client.session.close()
-        if idx == len(PARSE_PATH_LANG) - 1:
-            client.logger_msg(client.lang_path, msg=f'Items success parsed', type_msg='success')
+        if idx == len(PARSE_MAIN_LANGS) - 1:
+            client.logger_msg(client.lang_path, msg=f'Urls success parsed', type_msg='success')
+    client_list = []
+    tasks = []
+    # for idx, country_lang in enumerate([['kz', 'ru']]):
+    for idx, country_lang in enumerate(PARSE_PATH_LANG):
+        client = Client(country_lang[0], country_lang[1], proxy_list=PROXY_LIST)
+        client_list.append(client)
+        worker = ParserItems(client)
+        tasks.append(worker.start_parse_items())
+        # await worker.start_parse_items()
+        #if idx == len(PARSE_PATH_LANG) - 1:
+    await asyncio.gather(*tasks)
+    for client in client_list:
+        client.logger_msg(client.lang_path, msg=f'Items success parsed', type_msg='success')
+        await client.session.close()
 
 
 if __name__ == '__main__':

@@ -10,12 +10,14 @@ from view.interfaces import Logger
 
 class Client(Logger):
     def __init__(
-            self, county: str, lang: str, proxy: str = None,
+            self, county: str, lang: str, proxy_list: list = None,
     ):
         Logger.__init__(self)
-        self.proxy_init = proxy
-        if proxy:
-            self.session = ClientSession(connector=ProxyConnector.from_url(f'http://{proxy}', ssl=ssl.create_default_context(), verify_ssl=True))
+        self.proxy_list = proxy_list
+        self.proxy_idx = 0
+        self.proxy_init = proxy_list[0]
+        if self.proxy_init:
+            self.session = ClientSession(connector=ProxyConnector.from_url(f'http://{self.proxy_init}', ssl=ssl.create_default_context(), verify_ssl=True))
         else:
             self.session = ClientSession()
         self.county = county
