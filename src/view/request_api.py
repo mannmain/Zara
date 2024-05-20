@@ -79,7 +79,7 @@ class ParserUrls(Logger, RequestClient):
                         return
             except Exception as ex:
                 self.logger_msg(self.client.lang_path, msg=f'{name_func} | Запрос не прошел | {ex}', type_msg='error')
-                await asyncio.sleep(300)
+                await asyncio.sleep(10)
 
     async def parse_url_category(self, category_list):
         products = await self.request_url_category(category_list)
