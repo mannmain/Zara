@@ -285,7 +285,7 @@ async def starter_parse():
     tasks = []
     # for idx, country_lang in enumerate([['kz', 'ru']]):
     for idx, country_lang in enumerate(PARSE_PATH_LANG):
-        client = Client(country_lang[0], country_lang[1], proxy_list=PROXY_LIST)
+        client = Client(country_lang[0], country_lang[1], proxy_list=[PROXY])
         client_list.append(client)
         worker = ParserItems(client)
         tasks.append(worker.start_parse_items())
