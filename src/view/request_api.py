@@ -158,6 +158,7 @@ class ParserItems(Logger):
         headers = _headers.copy()
         # if cookie:
         #     headers['cookie'] = cookie
+        c = 0
         while True:
             try:
                 # async with self.client.session.request(method=method, url=url_to_req, headers=headers) as response:
@@ -200,6 +201,9 @@ class ParserItems(Logger):
             except Exception as ex:
                 self.logger_msg(self.client.lang_path, msg=f'{name_func} | Запрос не прошел | {ex}', type_msg='error')
                 await asyncio.sleep(10)
+                c += 1
+                if c == 10:
+                    return None
 
     async def get_extra_detail_from_product(self, product_id: str):
         name_func = self.get_extra_detail_from_product.__name__
@@ -252,14 +256,14 @@ class ParserItems(Logger):
         len_url_list = await urls_collection.count_documents({})
         step = 2
         finish_count = 0
-        #if self.client.lang_path == 'es/es':
-        #    finish_count = 10947
-        #if self.client.lang_path == 'kz/ru':
-        #    finish_count = 11443
-        #if self.client.lang_path == 'es/en':
-        #    finish_count = 12215
-        #if self.client.lang_path == 'tr/en':
-        #     finish_count = 12216
+        if self.client.lang_path == 'es/es':
+           finish_count = 9860
+        if self.client.lang_path == 'kz/ru':
+           finish_count = 7760
+        if self.client.lang_path == 'es/en':
+           finish_count = 9860
+        if self.client.lang_path == 'tr/en':
+            finish_count = 13500
         # async for i in urls_collection.find():
         #     finish_count += step
         #     await self.get_data_item(i['_id'], i['url_full'])
@@ -274,17 +278,17 @@ class ParserItems(Logger):
 
 
 async def starter_parse():
-    for idx, country_lang in enumerate(PARSE_MAIN_LANGS):
-        client = Client(country_lang[0], country_lang[1], proxy_list=[PROXY])
-        worker = ParserUrls(client)
-        await worker.start_get_urls()
-        await client.session.close()
-        if idx == len(PARSE_MAIN_LANGS) - 1:
-            client.logger_msg(client.lang_path, msg=f'Urls success parsed', type_msg='success')
+    # for idx, country_lang in enumerate(PARSE_MAIN_LANGS):
+    #     client = Client(country_lang[0], country_lang[1], proxy_list=[PROXY])
+    #     worker = ParserUrls(client)
+    #     await worker.start_get_urls()
+    #     await client.session.close()
+    #     if idx == len(PARSE_MAIN_LANGS) - 1:
+    #         client.logger_msg(client.lang_path, msg=f'Urls success parsed', type_msg='success')
     client_list = []
     tasks = []
-    # for idx, country_lang in enumerate([['kz', 'ru']]):
-    for idx, country_lang in enumerate(PARSE_PATH_LANG):
+    for idx, country_lang in enumerate([['es', 'es'], ['es', 'en'], ['kz', 'ru']]):
+    # for idx, country_lang in enumerate(PARSE_PATH_LANG):
         client = Client(country_lang[0], country_lang[1], proxy_list=[PROXY])
         client_list.append(client)
         worker = ParserItems(client)
