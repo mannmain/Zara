@@ -257,11 +257,11 @@ class ParserItems(Logger):
         step = 2
         finish_count = 0
         if self.client.lang_path == 'es/es':
-           finish_count = 9863
+           finish_count = 10002
         if self.client.lang_path == 'kz/ru':
-           finish_count = 7763
+           finish_count = 7764
         if self.client.lang_path == 'es/en':
-           finish_count = 9863
+           finish_count = 10006
         if self.client.lang_path == 'tr/en':
             finish_count = 13500
         # async for i in urls_collection.find():
