@@ -178,6 +178,9 @@ class ParserItems(Logger):
                             # self.client.proxy_init = self.client.proxy_list[self.client.proxy_idx]
                             # self.logger_msg(self.client.lang_path, msg=f'{name_func} | Change proxy | before: {last_proxy} after: {self.client.proxy_init}', type_msg='success')
                             key_ban = True
+                            c += 1
+                            if c == 23:  # если за 23 минуты до сих пор весит бан, то скорее всего ссылка не рабочая, так как за 23 минуты точно сменилось 3 ip
+                                return None
                             # return None  # поставил возврат, потому что не должно впринципе банить, а сылки, которые уже не существуют отдают такой же текст, как и когда забанили
                             continue  # до return был continue
                         if bm_verify:
@@ -201,9 +204,6 @@ class ParserItems(Logger):
             except Exception as ex:
                 self.logger_msg(self.client.lang_path, msg=f'{name_func} | Запрос не прошел | {ex}', type_msg='error')
                 await asyncio.sleep(10)
-                c += 1
-                if c == 10:
-                    return None
 
     async def get_extra_detail_from_product(self, product_id: str):
         name_func = self.get_extra_detail_from_product.__name__
@@ -257,11 +257,11 @@ class ParserItems(Logger):
         step = 2
         finish_count = 0
         if self.client.lang_path == 'es/es':
-           finish_count = 9860
+           finish_count = 9863
         if self.client.lang_path == 'kz/ru':
-           finish_count = 7760
+           finish_count = 7763
         if self.client.lang_path == 'es/en':
-           finish_count = 9860
+           finish_count = 9863
         if self.client.lang_path == 'tr/en':
             finish_count = 13500
         # async for i in urls_collection.find():
