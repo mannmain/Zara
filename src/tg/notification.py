@@ -4,7 +4,8 @@ from datetime import datetime
 
 import requests
 
-from config.config import TG_GROUP_ID, TG_API_TOKEN, TG_NAME_PARSE
+from config.config import TG_GROUP_ID, TG_API_TOKEN, TG_NAME_PARSE, TG_GROUP_ID_PARSER_ANALYSIS, \
+    TG_API_TOKEN_PARSER_ANALYSIS
 
 
 def send_file(path):
@@ -29,15 +30,21 @@ def send_file(path):
             print(f"ERROR SEND MSG - {ex}")
 
 
-def send_msg(msg):
+def send_msg(msg, parser_analysis=False):
+    if parser_analysis:
+        group_id = TG_GROUP_ID_PARSER_ANALYSIS
+        api_token = TG_API_TOKEN_PARSER_ANALYSIS
+    else:
+        group_id = TG_GROUP_ID
+        api_token = TG_API_TOKEN
     json_data = {
-        'chat_id': TG_GROUP_ID,
+        'chat_id': group_id,
         'text': msg,
         'disable_notification': False,
     }
     while True:
         try:
-            response = requests.post(f'https://api.telegram.org/bot{TG_API_TOKEN}/sendMessage', json=json_data)
+            response = requests.post(f'https://api.telegram.org/bot{api_token}/sendMessage', json=json_data)
             if response.status_code == 200:
                 break
             else:
