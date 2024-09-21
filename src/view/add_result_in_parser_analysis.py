@@ -13,7 +13,7 @@ host = '32d209d78239.vps.myjino.ru'
 
 def load_res_to_parser_analysis(data_finally):
     json_data = {
-        'parser_name': TG_NAME_PARSE,
+        'parser_name': f'{TG_NAME_PARSE}_{data_finally["currency"]}',
         'count_cards': data_finally['card'],
         'count_active_cards': data_finally['card_active'],
         'count_variants': data_finally['vars'],

@@ -29,6 +29,7 @@ async def construct_and_upload_func(ftp_host, ftp_user, ftp_password, collection
                 data_finally[i] += data[i]
         await asyncio.sleep(60)
     finally_info_and_send_msg(data_finally, f'Currency: {currency}\n')
+    data_finally['currency'] = currency
     load_res_to_parser_analysis(data_finally)
 
 
