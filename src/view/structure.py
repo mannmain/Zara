@@ -192,7 +192,7 @@ async def construct_files(collection: AsyncIOMotorCollection, currency: str, mai
                     try:
                         images.append(f"https://static.zara.net/photos//{img['path']}/w/1850/{img['name']}.jpg?ts={img['timestamp']}")
                     except:
-                        pass
+                        print(f"Error in mainImgs item_id{item['_id']} var_id={variation['id']}")
                 if not images:
                     continue
                 for size in variation['sizes']:

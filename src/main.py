@@ -15,22 +15,28 @@ from config.config import *
 
 
 async def construct_and_upload_func(ftp_host, ftp_user, ftp_password, collection, currency: str, main_lang: list,):
-    data_finally = {'card': 0, 'card_active': 0, 'vars': 0, 'vars_active': 0}
-    skip = 0
-    while True:
-        status = await construct_files(collection, currency, [main_lang], STEP_LEN_UPLOAD, skip)
-        if status == 'last':
-            break
-        skip += STEP_LEN_UPLOAD
-        upload_file(ftp_host, ftp_user, ftp_password)
-        data = get_info_and_send_msg(send_msg_flag=False)
-        if data:
-            for i in data.keys():
-                data_finally[i] += data[i]
-        await asyncio.sleep(60)
-    finally_info_and_send_msg(data_finally, f'Currency: {currency}\n')
-    data_finally['country_lang'] = f'{main_lang[0]}_{main_lang[1]}'
-    load_res_to_parser_analysis(data_finally)
+    try:
+        data_finally = {'card': 0, 'card_active': 0, 'vars': 0, 'vars_active': 0}
+        skip = 0
+        while True:
+            status = await construct_files(collection, currency, [main_lang], STEP_LEN_UPLOAD, skip)
+            if status == 'last':
+                break
+            skip += STEP_LEN_UPLOAD
+            upload_file(ftp_host, ftp_user, ftp_password)
+            data = get_info_and_send_msg(send_msg_flag=False)
+            if data:
+                for i in data.keys():
+                    data_finally[i] += data[i]
+            await asyncio.sleep(60)
+        finally_info_and_send_msg(data_finally, f'Currency: {currency}\n')
+        data_finally['country_lang'] = f'{main_lang[0]}_{main_lang[1]}'
+        load_res_to_parser_analysis(data_finally)
+    except Exception as ex:
+        print(f"error in construct_and_upload_func: {ex}")
+        msg = f'{TG_NAME_PARSE}\n{datetime.now().strftime("%m.%d %H:%M")}\n[ОШИБКА]\nex: {ex}'
+        send_msg(msg)
+        await asyncio.sleep(12*3600)
 
 
 async def main():
