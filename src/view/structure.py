@@ -189,7 +189,12 @@ async def construct_files(collection: AsyncIOMotorCollection, currency: str, mai
 
                 images = []
                 for img in variation['mainImgs']:
-                    images.append(f"https://static.zara.net/photos//{img['path']}/w/1850/{img['name']}.jpg?ts={img['timestamp']}")
+                    try:
+                        images.append(f"https://static.zara.net/photos//{img['path']}/w/1850/{img['name']}.jpg?ts={img['timestamp']}")
+                    except:
+                        pass
+                if not images:
+                    continue
                 for size in variation['sizes']:
                     sku = f"{variation['productId']}_{size['name']}"
                     size_name = size['name']
