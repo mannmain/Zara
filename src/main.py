@@ -9,6 +9,7 @@ from mongodb.db import db, client_async
 from tg.notification import get_info_and_send_msg, finally_info_and_send_msg, end_and_send_msg, start_and_send_msg, \
     send_msg
 from view.add_result_in_parser_analysis import load_res_to_parser_analysis
+from view.helper import clear_logs_folder
 from view.request_api import starter_parse
 from view.structure import construct_files
 from config.config import *
@@ -40,6 +41,7 @@ async def construct_and_upload_func(ftp_host, ftp_user, ftp_password, collection
 
 
 async def main():
+    clear_logs_folder()
     start_and_send_msg()
     try:
         await client_async.drop_database('Zara')
