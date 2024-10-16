@@ -9,6 +9,9 @@ services:
         container_name: "parser"
         environment:
           - MONGODB_URL=mongodb://mongo_db
+        logging:
+          options:
+            max-size: "500m"
         networks:
           - custom
     db:
@@ -19,6 +22,9 @@ services:
         - "27017:27017"
       volumes:
         - /var/lib/mongodb/:/data/db
+      logging:
+        options:
+          max-size: "500m"
       networks:
         - custom
 networks:
