@@ -29,8 +29,8 @@ def upload_file(ftp_host, ftp_user, ftp_password):
                     # with open(f'last_uploads/{filename}', 'w', encoding='utf-8') as file:
                     #     json.dump(json_file, file)
                 break
-            except:
-                print(f'error with upload file {datetime.now().strftime("%m.%d %H:%M")}')
+            except Exception as ex:
+                print(f'error with upload file {datetime.now().strftime("%m.%d %H:%M")} {ex=}')
                 time.sleep(3600)
         return len(json_file)
 
