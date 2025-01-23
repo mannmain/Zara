@@ -11,6 +11,10 @@ FTP_PASSWORD_TR = os.getenv('FTP_PASSWORD_TR')
 FTP_HOST_ES = os.getenv('FTP_HOST_ES')
 FTP_USER_ES = os.getenv('FTP_USER_ES')
 FTP_PASSWORD_ES = os.getenv('FTP_PASSWORD_ES')
+
+FTP_HOST_DE = os.getenv('FTP_HOST_DE')
+FTP_USER_DE = os.getenv('FTP_USER_DE')
+FTP_PASSWORD_DE = os.getenv('FTP_PASSWORD_DE')
 # -----
 
 # TG
@@ -74,9 +78,13 @@ iparchitect_34107_20_04_24:HZaR2ihiBhhNtifAFt@188.143.169.27:30156
 """.split('\n')[1:-1]
 # -----
 
-PARSE_MAIN_LANGS = [['es', 'en'], ['tr', 'en']]
-PARSE_PATH_LANG = [['es', 'es'], ['kz', 'ru'], ['es', 'en'], ['tr', 'en']]
-PARSE_NEW_LANGS = [['es', 'es'], ['kz', 'ru']]
+# PARSE_MAIN_LANGS = [['es', 'en'], ['tr', 'en']]
+# PARSE_PATH_LANG = [['es', 'es'], ['kz', 'ru'], ['es', 'en'], ['tr', 'en']]
+# PARSE_NEW_LANGS = [['es', 'es'], ['kz', 'ru']]
+
+PARSE_MAIN_LANGS = [['de', 'en'], ['tr', 'en']]
+PARSE_PATH_LANG = [['de', 'de'], ['kz', 'ru'], ['de', 'en'], ['tr', 'en']]
+PARSE_NEW_LANGS = [['de', 'de'], ['kz', 'ru']]
 
 # PARSE_MAIN_LANGS = [['es', 'en'], ['kz', 'ru']]
 # PARSE_PATH_LANG = [['es', 'es'], ['kz', 'ru'], ['es', 'en']]

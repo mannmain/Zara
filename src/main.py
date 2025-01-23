@@ -49,8 +49,11 @@ async def main():
         await construct_and_upload_func(
             FTP_HOST_TR, FTP_USER_TR, FTP_PASSWORD_TR, db.get_collection('items_tr_en'), 'TRY', PARSE_MAIN_LANGS[1]
         )
+        # await construct_and_upload_func(
+        #     FTP_HOST_ES, FTP_USER_ES, FTP_PASSWORD_ES, db.get_collection('items_es_en'), 'EUR', PARSE_MAIN_LANGS[0]
+        # )
         await construct_and_upload_func(
-            FTP_HOST_ES, FTP_USER_ES, FTP_PASSWORD_ES, db.get_collection('items_es_en'), 'EUR', PARSE_MAIN_LANGS[0]
+            FTP_HOST_DE, FTP_USER_DE, FTP_PASSWORD_DE, db.get_collection('items_de_en'), 'EUR', PARSE_MAIN_LANGS[0]
         )
     except Exception as ex:
         print(f"error: {ex}")
