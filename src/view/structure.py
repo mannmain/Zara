@@ -101,6 +101,7 @@ async def get_rubrics(url_id):
 
 
 async def construct_files(collection: AsyncIOMotorCollection, currency: str, main_langs: list, limit: int, offset: int):
+    lang_parser = main_langs[0][0]
     res_json = []
     part_of_data = [i async for i in collection.find().limit(limit).skip(offset)]
     if not part_of_data:
@@ -211,7 +212,7 @@ async def construct_files(collection: AsyncIOMotorCollection, currency: str, mai
                     try:
                         price = Decimal(variation['price'])
                     except:
-                        print(f"https://www.zara.com/tr/en/{item['_id']}")
+                        print(f"https://www.zara.com/{lang_parser}/en/{item['_id']}")
                         continue
                     quantity = None
                     if size['availability'] != 'in_stock' and size['availability'] != 'low_on_stock':
@@ -243,7 +244,7 @@ async def construct_files(collection: AsyncIOMotorCollection, currency: str, mai
             res_json_to_append = {
                 "name": f"{name_product}",
                 "brand": "Zara",
-                "externalId": f"https://www.zara.com/tr/en/{item['_id']}",  # заменить на full url
+                "externalId": f"https://www.zara.com/{lang_parser}/en/{item['_id']}",  # заменить на full url
                 # "externalId": f"https://www.zara.com/tr/en/{url_data['url_full']}",
                 "variations": variations
             }
