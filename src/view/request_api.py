@@ -55,7 +55,7 @@ class ParserUrls(Logger, RequestClient):
     async def request_url_category(self, category_list: list):
         key_ban = False
         name_func = self.request_url_category.__name__
-        url = f'https://www.zara.com/tr/en/category/{category_list[-1]["id"]}/products?ajax=true'
+        url = f'{self.base_url}{self.client.county}/en/category/{category_list[-1]["id"]}/products?ajax=true'
         while True:
             try:
                 async with self.client.session.request(method='GET', url=url, headers={'User-Agent': get_user_agent()}) as response:
